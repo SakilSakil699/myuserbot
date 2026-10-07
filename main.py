@@ -12,6 +12,14 @@ except RuntimeError:
     asyncio.set_event_loop(asyncio.new_event_loop())
 # ═══════════════════════════════════
 
+import logging
+
+# Pyrogram ki internal warnings chhupao
+logging.getLogger("pyrogram").setLevel(logging.CRITICAL)
+logging.getLogger("pyrogram.session").setLevel(logging.CRITICAL)
+logging.getLogger("pyrogram.connection").setLevel(logging.CRITICAL)
+logging.getLogger("pyrogram.dispatcher").setLevel(logging.CRITICAL)
+
 import os
 import sys
 import signal
