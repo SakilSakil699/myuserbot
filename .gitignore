@@ -1,16 +1,23 @@
 # Secrets
 .env
+.env.backup_*
 *.session
 *.session-journal
 
-# User data
+# Data
 data/
 logs/
+sessions/
 backup_tmp/
 
-# Python cache
+# Python
 __pycache__/
 *.pyc
 *.pyo
-venv/
 .venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
