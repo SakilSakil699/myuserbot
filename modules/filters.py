@@ -1,5 +1,5 @@
 from pyrogram import filters as flt
-from config import PREFIX
+from config import BOT_PREFIX as PREFIX
 import json, os
 
 F_FILE = "filters.json"
