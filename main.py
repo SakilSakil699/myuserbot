@@ -34,7 +34,7 @@ try:
         SESSION_STRING,
         OWNER_ID,
         BOT_NAME,
-        PREFIX,
+        BOT_PREFIX as PREFIX,
         PROXY,
         DASHBOARD_ENABLED,
         DASHBOARD_PORT,
