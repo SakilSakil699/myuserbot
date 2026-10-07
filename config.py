@@ -29,7 +29,7 @@ OWNER_ID = int(os.getenv("OWNER_ID", "0"))
 # ═══════════════════════════════════════════════
 
 BOT_NAME = os.getenv("BOT_NAME", "Ultimate Userbot")
-PREFIX = os.getenv("PREFIX", ".")
+PREFIX = os.getenv("BOT_PREFIX", ".")
 
 # How many seconds to auto-delete command messages (0 = never)
 COMMAND_DELETE_AFTER = int(os.getenv("COMMAND_DELETE_AFTER", "0"))
