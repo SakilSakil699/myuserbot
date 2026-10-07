@@ -1,25 +1,21 @@
 """
-╔══════════════════════════════════════════════════════════════╗
-║          🚀 ULTIMATE ADVANCED TELEGRAM USERBOT 🚀            ║
-║                                                              ║
-║  Features:                                                   ║
-║   • Self-Healing Plugin Manager                              ║
-║   • Locked Session Protocol                                  ║
-║   • Agentic AI with Tools                                    ║
-║   • Web Dashboard                                            ║
-║   • Self-Updating System                                     ║
-║   • SOCKS5 Proxy Support                                     ║
-║   • Graceful Shutdown                                        ║
-║   • Crash Recovery                                           ║
-╚══════════════════════════════════════════════════════════════╝
+🚀 Ultimate Advanced Telegram Userbot
+Python 3.14 compatible
 """
 
 import asyncio
+
+# ═══ Python 3.14 Fix for Pyrogram ═══
+try:
+    asyncio.get_event_loop()
+except RuntimeError:
+    asyncio.set_event_loop(asyncio.new_event_loop())
+# ═══════════════════════════════════
+
 import os
 import sys
 import signal
 import time
-import logging
 from pathlib import Path
 
 from pyrogram import Client, idle
@@ -28,25 +24,9 @@ from pyrogram.errors import (
     AuthKeyUnregistered,
     UserDeactivated,
     SessionRevoked,
-    FloodWait,
 )
 
-# ═══════════════════════════════════════════════════════════════
-#  IMPORT CORE MODULES
-# ═══════════════════════════════════════════════════════════════
-from core.logger import setup_logger
-from core.session_vault import SessionVault
-from core.plugin_manager import PluginManager
-from core.web_dashboard import start_dashboard
-
-# ═══════════════════════════════════════════════════════════════
-#  SETUP LOGGING
-# ═══════════════════════════════════════════════════════════════
-logger = setup_logger()
-
-# ═══════════════════════════════════════════════════════════════
-#  LOAD CONFIG
-# ═══════════════════════════════════════════════════════════════
+# ═══ Load Config ═══
 try:
     from config import (
         API_ID,
@@ -56,198 +36,198 @@ try:
         BOT_NAME,
         PREFIX,
         PROXY,
-        DASHBOARD_PORT,
         DASHBOARD_ENABLED,
+        DASHBOARD_PORT,
     )
 except ImportError as e:
-    logger.critical(f"❌ config.py load failed: {e}")
+    print(f"❌ config.py load failed: {e}")
     sys.exit(1)
 
-# ═══════════════════════════════════════════════════════════════
-#  GLOBAL STATE
-# ═══════════════════════════════════════════════════════════════
+# ═══ Global State ═══
 START_TIME = time.time()
-app: Client = None
-plugin_manager: PluginManager = None
-_shutdown_event = asyncio.Event()
+app = None
+_shutdown_event = None
 
-# ═══════════════════════════════════════════════════════════════
-#  DECRYPT SESSION (Locked Session Protocol)
-# ═══════════════════════════════════════════════════════════════
+
+def log(msg):
+    """Simple logger."""
+    t = time.strftime("%H:%M:%S")
+    print(f"{t} | {msg}")
+
+
 def get_session_string():
-    """Auto-detect if session is encrypted or plain."""
+    """Check if session is encrypted or plain."""
     if not SESSION_STRING:
-        logger.critical("❌ SESSION_STRING missing in .env")
+        print("❌ SESSION_STRING missing in .env")
         sys.exit(1)
 
-    # Encrypted Fernet tokens start with 'gAAAAA'
+    # Encrypted (Fernet) tokens start with 'gAAAAA'
     if SESSION_STRING.startswith("gAAAAA"):
         try:
-            vault = SessionVault()
-            decrypted = vault.unlock(SESSION_STRING)
-            logger.info("🔐 Encrypted session unlocked successfully")
+            from core.session_vault import SessionVault
+            decrypted = SessionVault().unlock(SESSION_STRING)
+            log("🔐 Encrypted session unlocked")
             return decrypted
         except Exception as e:
-            logger.critical(f"❌ Session unlock failed: {e}")
+            print(f"❌ Session unlock failed: {e}")
             sys.exit(1)
 
-    logger.warning("⚠️  Session is PLAIN (not encrypted). Consider using SessionVault.")
+    log("⚠️  Session is PLAIN (not encrypted)")
     return SESSION_STRING
 
-# ═══════════════════════════════════════════════════════════════
-#  CREATE PYROGRAM CLIENT
-# ═══════════════════════════════════════════════════════════════
+
 def create_client():
-    """Build Pyrogram client with proxy if configured."""
+    """Build Pyrogram client."""
     kwargs = {
         "name": "userbot",
         "api_id": API_ID,
         "api_hash": API_HASH,
         "session_string": get_session_string(),
         "parse_mode": ParseMode.HTML,
-        "workers": 20,               # Concurrent workers
-        "sleep_threshold": 60,        # Auto-handle FloodWait < 60s
-        "no_updates": False,
-        "in_memory": False,
+        "workers": 20,
+        "sleep_threshold": 60,
     }
 
-    # Add proxy if set
+    # Add proxy if configured
     if PROXY and PROXY.get("hostname"):
         kwargs["proxy"] = PROXY
-        logger.info(f"🌐 Proxy enabled: {PROXY['hostname']}:{PROXY['port']}")
+        log(f"🌐 Proxy: {PROXY['hostname']}:{PROXY['port']}")
     else:
-        logger.info("🌐 Running without proxy")
+        log("🌐 No proxy")
 
     return Client(**kwargs)
 
-# ═══════════════════════════════════════════════════════════════
-#  BANNER
-# ═══════════════════════════════════════════════════════════════
+
 def print_banner():
-    banner = f"""
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║   🔥  {BOT_NAME.upper():^50}  🔥
-║                                                              ║
-║   Version    : 3.0 Ultimate                                  ║
-║   Prefix     : {PREFIX:<45}║
-║   Owner ID   : {str(OWNER_ID):<45}║
-║   Dashboard  : {'ENABLED @ :' + str(DASHBOARD_PORT) if DASHBOARD_ENABLED else 'DISABLED':<45}║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-"""
-    print(banner)
+    print(f"""
+╔══════════════════════════════════════════════╗
+║   🔥  {BOT_NAME.upper():<35} 🔥
+║   Prefix: {PREFIX:<34} ║
+║   Owner:  {str(OWNER_ID):<34} ║
+╚══════════════════════════════════════════════╝
+""")
 
-# ═══════════════════════════════════════════════════════════════
-#  STARTUP SEQUENCE
-# ═══════════════════════════════════════════════════════════════
+
+def load_plugins():
+    """Load all modules from modules/ folder."""
+    try:
+        from core.plugin_manager import PluginManager
+        pm = PluginManager(app, modules_dir="modules")
+        pm.load_all()
+        log(f"✅ Plugins: {len(pm.loaded)} loaded, {len(pm.failed)} failed")
+    except ImportError:
+        # Fallback: manual load if core/ missing
+        log("⚠️ core/ missing — using simple loader")
+        import importlib
+        for f in Path("modules").glob("*.py"):
+            if f.name.startswith("_"):
+                continue
+            try:
+                m = importlib.import_module(f"modules.{f.stem}")
+                if hasattr(m, "register"):
+                    m.register(app)
+                    log(f"✅ {f.stem}")
+            except Exception as e:
+                log(f"❌ {f.stem}: {e}")
+
+
 async def startup():
-    """Start client, verify session, load plugins."""
-    global plugin_manager
-
+    """Start client, load plugins."""
     print_banner()
-    logger.info("🚀 Starting userbot...")
+    log("🚀 Starting userbot...")
 
     # Start Pyrogram
     try:
         await app.start()
     except AuthKeyUnregistered:
-        logger.critical("❌ Session revoked! Generate new SESSION_STRING.")
+        print("❌ Session revoked! Generate new SESSION_STRING.")
         sys.exit(1)
     except UserDeactivated:
-        logger.critical("❌ Account deactivated!")
+        print("❌ Account deactivated!")
         sys.exit(1)
     except SessionRevoked:
-        logger.critical("❌ Session revoked from Telegram!")
+        print("❌ Session revoked from Telegram!")
         sys.exit(1)
     except Exception as e:
-        logger.critical(f"❌ Failed to start: {e}")
+        print(f"❌ Failed to start: {e}")
         sys.exit(1)
 
     # Get account info
     me = await app.get_me()
-    logger.info(f"✅ Logged in as: {me.first_name} (@{me.username or 'no-username'})")
-    logger.info(f"   User ID: {me.id}")
+    log(f"✅ Logged in as: {me.first_name} (@{me.username or 'no-username'})")
+    log(f"   User ID: {me.id}")
 
-    # Verify owner
     if me.id != OWNER_ID:
-        logger.warning(f"⚠️  OWNER_ID ({OWNER_ID}) != logged-in ({me.id})")
+        log(f"⚠️  OWNER_ID mismatch: env={OWNER_ID} actual={me.id}")
 
-    # Start web dashboard
+    # Dashboard (optional)
     if DASHBOARD_ENABLED:
         try:
+            from core.web_dashboard import start_dashboard
             start_dashboard(port=DASHBOARD_PORT)
-            logger.info(f"📊 Dashboard: http://0.0.0.0:{DASHBOARD_PORT}")
+            log(f"📊 Dashboard: http://0.0.0.0:{DASHBOARD_PORT}")
         except Exception as e:
-            logger.error(f"❌ Dashboard failed: {e}")
+            log(f"⚠️  Dashboard skipped: {e}")
 
-    # Load plugins (self-healing)
-    logger.info("📦 Loading plugins...")
-    plugin_manager = PluginManager(app, modules_dir="modules")
-    plugin_manager.load_all()
-
-    loaded = len(plugin_manager.loaded)
-    failed = len(plugin_manager.failed)
-    logger.info(f"✅ Plugins loaded: {loaded} | Failed: {failed}")
-
-    if failed:
-        for name, err in plugin_manager.failed.items():
-            logger.warning(f"   ❌ {name}: {err}")
+    # Load plugins
+    log("📦 Loading plugins...")
+    load_plugins()
 
     # Notify owner
     try:
-        uptime_str = "just started"
         await app.send_message(
             OWNER_ID,
-            f"🚀 <b>{BOT_NAME} is online!</b>\n\n"
-            f"👤 <b>Account:</b> {me.mention}\n"
-            f"📦 <b>Plugins:</b> <code>{loaded}</code> loaded, <code>{failed}</code> failed\n"
-            f"🌐 <b>Proxy:</b> {'ON' if PROXY.get('hostname') else 'OFF'}\n"
-            f"📊 <b>Dashboard:</b> {'ON' if DASHBOARD_ENABLED else 'OFF'}\n"
-            f"⏱ <b>Started:</b> {uptime_str}",
+            f"🚀 <b>{BOT_NAME} online!</b>\n\n"
+            f"👤 {me.mention}\n"
+            f"🆔 <code>{me.id}</code>"
         )
     except Exception as e:
-        logger.warning(f"⚠️ Could not notify owner: {e}")
+        log(f"⚠️  Owner notify failed: {e}")
 
-# ═══════════════════════════════════════════════════════════════
-#  SHUTDOWN HANDLER
-# ═══════════════════════════════════════════════════════════════
+
 async def shutdown(sig=None):
     """Graceful shutdown."""
-    if _shutdown_event.is_set():
+    global _shutdown_event
+    if _shutdown_event is None or _shutdown_event.is_set():
         return
     _shutdown_event.set()
 
-    logger.info(f"🛑 Shutting down (signal={sig})...")
-
+    log(f"🛑 Shutting down (signal={sig})...")
     try:
         if app and app.is_connected:
-            me = await app.get_me()
             try:
                 await app.send_message(OWNER_ID, "🔴 <b>Userbot stopped.</b>")
             except Exception:
                 pass
             await app.stop()
-            logger.info("✅ Client stopped cleanly")
+            log("✅ Client stopped")
     except Exception as e:
-        logger.error(f"❌ Shutdown error: {e}")
+        log(f"❌ Shutdown error: {e}")
+    log("👋 Bye!")
 
-    logger.info("👋 Goodbye!")
 
 def signal_handler(sig, frame):
-    """Sync signal handler → schedule async shutdown."""
-    logger.info(f"📡 Signal received: {sig}")
-    asyncio.create_task(shutdown(sig))
+    """Sync signal → async shutdown."""
+    log(f"📡 Signal: {sig}")
+    if _shutdown_event is not None:
+        try:
+            loop = asyncio.get_event_loop()
+            loop.create_task(shutdown(sig))
+        except Exception:
+            pass
 
-# ═══════════════════════════════════════════════════════════════
-#  MAIN
-# ═══════════════════════════════════════════════════════════════
+
 async def main():
-    global app
+    global app, _shutdown_event
 
-    # Register signal handlers
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
+    _shutdown_event = asyncio.Event()
+
+    # Signal handlers
+    try:
+        signal.signal(signal.SIGINT, signal_handler)
+        signal.signal(signal.SIGTERM, signal_handler)
+    except Exception:
+        pass
 
     # Build client
     app = create_client()
@@ -255,42 +235,38 @@ async def main():
     # Startup
     await startup()
 
-    # Keep running until shutdown
+    # Keep running
     try:
         await _shutdown_event.wait()
     except asyncio.CancelledError:
         await shutdown()
 
-# ═══════════════════════════════════════════════════════════════
-#  CRASH RECOVERY LOOP
-# ═══════════════════════════════════════════════════════════════
+
 def run_with_recovery():
     """Auto-restart on crash (max 5 times)."""
     max_retries = 5
-    retry_delay = 10
+    delay = 10
 
     for attempt in range(1, max_retries + 1):
         try:
             asyncio.run(main())
-            break  # Clean exit
+            break
         except KeyboardInterrupt:
-            logger.info("⌨️  Interrupted by user")
+            log("⌨️  Interrupted")
             break
         except Exception as e:
-            logger.critical(f"💥 Crash (attempt {attempt}/{max_retries}): {e}")
+            log(f"💥 Crash ({attempt}/{max_retries}): {e}")
             if attempt < max_retries:
-                logger.info(f"⏳ Restarting in {retry_delay}s...")
-                time.sleep(retry_delay)
-                retry_delay *= 2  # Exponential backoff
+                log(f"⏳ Restart in {delay}s...")
+                time.sleep(delay)
+                delay *= 2
             else:
-                logger.critical("❌ Max retries reached. Exiting.")
+                print("❌ Max retries. Exiting.")
                 sys.exit(1)
 
-# ═══════════════════════════════════════════════════════════════
-#  ENTRY POINT
-# ═══════════════════════════════════════════════════════════════
+
 if __name__ == "__main__":
-    # Ensure directories exist
+    # Ensure folders
     Path("data").mkdir(exist_ok=True)
     Path("logs").mkdir(exist_ok=True)
 
