@@ -1,6 +1,6 @@
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from config import PREFIX, OWNER_ID
+from config import BOT_PREFIX as PREFIX, OWNER_ID
 import json, os, time
 
 PM_FILE = "pm_permit.json"
