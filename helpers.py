@@ -2,7 +2,7 @@ import time
 
 def cmd(name, prefixes=None):
     """Filter shortcut"""
-    from config import PREFIX
+    from config import BOT_PREFIX as PREFIX
     from pyrogram import filters
     p = prefixes or PREFIX
     return filters.command(name, prefixes=p) & filters.me
