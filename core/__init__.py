@@ -1,0 +1,1 @@
+# Empty file — marks core as package
