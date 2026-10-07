@@ -12,6 +12,7 @@
 
 [![Made by Sakil](https://img.shields.io/badge/Made%20by-Sakil-A78BFA?style=for-the-badge&logo=starship&logoColor=white)](https://t.me/YO_UR_OFFICIAL_CRUSH)
 [![Telegram](https://img.shields.io/badge/Telegram-@YO__UR__OFFICIAL__CRUSH-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/YO_UR_OFFICIAL_CRUSH)
+[![GitHub](https://img.shields.io/badge/GitHub-SakilSakil699-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/SakilSakil699)
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Pyrogram](https://img.shields.io/badge/Pyrogram-2.0.106-A78BFA?style=for-the-badge)](https://pyrogram.org)
@@ -21,9 +22,9 @@
 
 <br>
 
-[![Stars](https://img.shields.io/github/stars/YOUR_USERNAME/myuserbot?style=social)](https://github.com/YOUR_USERNAME/myuserbot)
-[![Forks](https://img.shields.io/github/forks/YOUR_USERNAME/myuserbot?style=social)](https://github.com/YOUR_USERNAME/myuserbot/fork)
-[![Watchers](https://img.shields.io/github/watchers/YOUR_USERNAME/myuserbot?style=social)](https://github.com/YOUR_USERNAME/myuserbot)
+[![Stars](https://img.shields.io/github/stars/SakilSakil699/myuserbot?style=social)](https://github.com/SakilSakil699/myuserbot)
+[![Forks](https://img.shields.io/github/forks/SakilSakil699/myuserbot?style=social)](https://github.com/SakilSakil699/myuserbot/fork)
+[![Watchers](https://img.shields.io/github/watchers/SakilSakil699/myuserbot?style=social)](https://github.com/SakilSakil699/myuserbot)
 
 </div>
 
@@ -106,7 +107,7 @@
 │         │ MTProto Protocol                                  │
 │         ▼                                                   │
 │  ┌──────────────────────────────────────────────┐           │
-│  │  🤖 Ultimate Userbot (aapka code)             │           │
+│  │  🤖 Ultimate Userbot (Sakil ka code)          │           │
 │  │                                              │           │
 │  │  ┌────────────────────────────────────┐    │           │
 │  │  │  🔄 Plugin Manager                 │    │           │
@@ -148,9 +149,7 @@
 
 <div align="center">
 
-### **Step 1: Install**
-### **Step 2: Configure**  
-### **Step 3: Run**
+### **Step 1: Install** → **Step 2: Configure** → **Step 3: Run**
 
 </div>
 
@@ -158,7 +157,7 @@
 
 ```bash
 # Clone
-git clone https://github.com/YOUR_USERNAME/myuserbot.git
+git clone https://github.com/SakilSakil699/myuserbot.git
 cd myuserbot
 
 # Install
@@ -216,7 +215,7 @@ termux-wake-lock                    # Screen off pe bhi chalega
 
 ```bash
 cd ~
-git clone https://github.com/YOUR_USERNAME/myuserbot.git
+git clone https://github.com/SakilSakil699/myuserbot.git
 cd myuserbot
 ```
 
@@ -345,8 +344,6 @@ Isko `.env` me paste karo — `VAULT_KEY=` ke aage.
 | `.afk [reason]` | AFK on karo |
 | `.unafk` | AFK off |
 
-**Kya hota hai:** Jab koi aapko mention kare, bot auto reply dega.
-
 </details>
 
 <details>
@@ -354,9 +351,9 @@ Isko `.env` me paste karo — `VAULT_KEY=` ke aage.
 
 | Command | Kya Karta Hai |
 |---------|---------------|
-| `.save <name> <text>` | Note save karo |
+| `.save <name> <text>` | Note save |
 | `.get <name>` | Note nikalo |
-| `.notes` | Saare notes list |
+| `.notes` | Saare notes |
 | `.delnote <name>` | Delete |
 
 **Example:** `.save wifi Password123` → baad me `.get wifi`
@@ -368,8 +365,8 @@ Isko `.env` me paste karo — `VAULT_KEY=` ke aage.
 
 | Command | Kya Karta Hai |
 |---------|---------------|
-| `.pmguard on/off` | Unknown logo se PM protection |
-| `.approve` | User ko approve karo (reply karke) |
+| `.pmguard on/off` | PM protection |
+| `.approve` | User approve (reply) |
 | `.antiflood on/off` | Spammer auto-mute |
 | `.antifraud on/off` | Scam link detect |
 | `.antidelete on/off` | Deleted messages log |
@@ -381,17 +378,13 @@ Isko `.env` me paste karo — `VAULT_KEY=` ke aage.
 
 | Command | Kya Karta Hai |
 |---------|---------------|
-| `.ban` | Member ban (reply karke) |
-| `.unban` | Unban |
-| `.kick` | Kick |
-| `.mute` | Mute |
-| `.unmute` | Unmute |
+| `.ban` `.unban` `.kick` | Member management |
+| `.mute` `.unmute` | Restrict |
 | `.warn` | Warning (3 = ban) |
-| `.pin` | Message pin |
-| `.promote` | Admin banao |
-| `.demote` | Admin hatao |
-| `.tagall <note>` | Sabko tag karo |
-| `.purge` | Bulk delete (reply se) |
+| `.pin` | Pin |
+| `.promote` `.demote` | Admin |
+| `.tagall <note>` | Sabko tag |
+| `.purge` | Bulk delete |
 
 </details>
 
@@ -401,9 +394,9 @@ Isko `.env` me paste karo — `VAULT_KEY=` ke aage.
 | Command | Kya Karta Hai |
 |---------|---------------|
 | `.ai <question>` | GPT se pucho |
-| `.ask <question>` | Agentic AI (tools ke saath) |
+| `.ask <question>` | Agentic AI |
 | `.sum [count]` | Chat summary |
-| `.sum [count] <question>` | Chat ke baare me pucho |
+| `.sum [count] <q>` | Chat ke baare me pucho |
 
 **Example:** `.sum 100 Aaj kya discuss hua?`
 
@@ -415,10 +408,10 @@ Isko `.env` me paste karo — `VAULT_KEY=` ke aage.
 | Command | Kya Karta Hai |
 |---------|---------------|
 | `.snipe on/off` | Gift Sniper |
-| `.schedule 5m Hello` | 5 min baad msg bhejo |
+| `.schedule 5m Hello` | 5 min baad msg |
 | `.remind 1h Meeting` | 1 hour baad reminder |
-| `.autodel 10` | Apne messages 10s me delete |
-| `.autofw add <chat_id>` | Auto-forward setup |
+| `.autodel 10` | Auto-delete 10s |
+| `.autofw add <id>` | Auto-forward |
 
 </details>
 
@@ -428,10 +421,10 @@ Isko `.env` me paste karo — `VAULT_KEY=` ke aage.
 | Command | Kya Karta Hai |
 |---------|---------------|
 | `.weather Delhi` | Weather |
-| `.tr hi Hello` | Translate to Hindi |
+| `.tr hi Hello` | Translate |
 | `.tts Hello` | Text → Voice |
 | `.qr <text>` | QR code |
-| `.quote` | Quote image (reply) |
+| `.quote` | Quote image |
 | `.price btc` | Crypto price |
 | `.short <url>` | URL short |
 | `.kang` | Photo → Sticker |
@@ -443,12 +436,12 @@ Isko `.env` me paste karo — `VAULT_KEY=` ke aage.
 
 | Command | Kya Karta Hai |
 |---------|---------------|
-| `.vault save gmail user\|pass` | Password save |
-| `.vault get gmail` | Password nikalo |
-| `.vault list` | Saare list |
+| `.vault save gmail user\|pass` | Save |
+| `.vault get gmail` | Retrieve |
+| `.vault list` | List |
 | `.vault del gmail` | Delete |
 
-**Sab kuch AES-128 me encrypted save hota hai.**
+**AES-128 encrypted.**
 
 </details>
 
@@ -457,8 +450,8 @@ Isko `.env` me paste karo — `VAULT_KEY=` ke aage.
 
 | Command | Kya Karta Hai |
 |---------|---------------|
-| `.yt <url>` | YouTube video download |
-| `.ig <url>` | Instagram reel/post |
+| `.yt <url>` | YouTube |
+| `.ig <url>` | Instagram |
 
 </details>
 
@@ -472,30 +465,30 @@ Isko `.env` me paste karo — `VAULT_KEY=` ke aage.
 Aapki Session String
        │
        ▼
-┌──────────────────┐
-│  SHA256(VAULT_KEY) │  ← Key derivation
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│  Fernet (AES-128) │  ← Encryption
-└────────┬─────────┘
-         │
-         ▼
-   gAAAAAB...xyz        ← Encrypted (safe to store)
+┌──────────────────────┐
+│  SHA256(VAULT_KEY)   │  ← Key derivation
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│  Fernet (AES-128)    │  ← Encryption
+└──────────┬───────────┘
+           │
+           ▼
+    gAAAAAB...xyz          ← Encrypted (safe)
 ```
 
-**Agar koi ye encrypted string chura bhi le, bina `VAULT_KEY` ke kuch nahi kar sakta.**
+**Koi ye encrypted string chura bhi le, bina `VAULT_KEY` ke kuch nahi kar sakta.**
 
 ### 🚨 Kabhi Mat Karo
 
 | ❌ Galat | ✅ Sahi |
 |---------|---------|
-| Session string screenshot bhejna | Sirf `.env` me rakho |
+| Session screenshot bhejna | Sirf `.env` me rakho |
 | `.env` GitHub pe push | `.gitignore` me daalo |
-| Random website se session | Sirf `gen_session.py` use karo |
+| Random website se session | Sirf `gen_session.py` |
 | Session kisi dost ko dena | Bilkul nahi |
-| Main account pe bot chalana | Secondary account |
+| Main account pe bot | Secondary account |
 
 ### 🛡️ Safety Checklist
 
@@ -568,7 +561,7 @@ python gen_session.py --name main --yes
 
 **Kyun:** Telegram rate limit.
 
-**Fix:** Bata diye gaye seconds **wait karo**. Retry mat karo turant.
+**Fix:** Bata diye gaye seconds **wait karo**.
 
 </details>
 
@@ -587,7 +580,7 @@ Android settings → Apps → Termux → Battery → **Unrestricted**.
 <details>
 <summary><b>❌ <code>SessionPasswordNeeded</code></b></summary>
 
-**Kyun:** Aapke account me 2FA on hai.
+**Kyun:** 2FA on hai.
 
 **Fix:** `gen_session.py` 2FA password maangega — wo daalo.
 
@@ -601,7 +594,7 @@ Android settings → Apps → Termux → Battery → **Unrestricted**.
 pip install --break-system-packages fastapi uvicorn
 ```
 
-**Fix 2:** Ya `.env` me disable karo:
+**Fix 2:** Ya disable karo:
 ```env
 DASHBOARD_ENABLED=false
 ```
@@ -612,7 +605,7 @@ DASHBOARD_ENABLED=false
 
 ## 🧩 Apna Module Banao
 
-**5 line me naya command add karo:**
+**5 line me naya command:**
 
 `modules/hello.py` banao:
 
@@ -625,13 +618,11 @@ def register(app):
         await message.edit("👋 Hello Sakil!")
 ```
 
-Bot chalao. Command `.hello` ready hai. **Self-healing system** automatically:
+Bot chalao. Command `.hello` ready. **Self-healing system** automatically:
 1. Imports scan karega
 2. Missing deps install karega
 3. Handler register karega
 4. Log karega
-
-**Restart ki zarurat nahi (hot-reload).**
 
 ---
 
@@ -655,20 +646,11 @@ Bot chalao. Command `.hello` ready hai. **Self-healing system** automatically:
 
 ## 🤝 Contribute Karo
 
-Bhai, agar tum bhi isme kuch add karna chahte ho:
-
-1. **Fork** karo repo
+1. **Fork** karo: [github.com/SakilSakil699/myuserbot](https://github.com/SakilSakil699/myuserbot)
 2. **Branch** banao: `git checkout -b feature/amazing`
 3. **Commit** karo: `git commit -m "Add amazing feature"`
 4. **Push** karo: `git push origin feature/amazing`
 5. **Pull Request** kholo
-
-### Code Style
-
-- PEP 8 follow karo
-- Type hints use karo
-- Docstrings likho
-- Test karke submit karo
 
 ---
 
@@ -684,7 +666,7 @@ Bhai, agar tum bhi isme kuch add karna chahte ho:
 
 - ❌ **Userbots Telegram ToS ke against hain**
 - ⚠️ **Aapka account ban ho sakta hai**
-- 🚫 **Spam, harassment ya illegal kaam ke liye mat use karo**
+- 🚫 **Spam/harassment/illegal ke liye mat use karo**
 - 🛡️ **Sirf apne account pe chalao**
 - 📜 **Author kisi bhi misuse ke liye responsible nahi hai**
 
@@ -697,7 +679,7 @@ Bhai, agar tum bhi isme kuch add karna chahte ho:
 ```
 MIT License
 
-Copyright (c) 2025 Sakil
+Copyright (c) 2025 Sakil (SakilSakil699)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -730,6 +712,7 @@ SOFTWARE.
 
 **Made with ❤️ by [Sakil](https://t.me/YO_UR_OFFICIAL_CRUSH)**
 
+[![GitHub](https://img.shields.io/badge/GitHub-SakilSakil699-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/SakilSakil699)
 [![Telegram](https://img.shields.io/badge/Chat%20on%20Telegram-@YO__UR__OFFICIAL__CRUSH-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/YO_UR_OFFICIAL_CRUSH)
 
 [⬆ Back to Top](#-ultimate-advanced-userbot)
