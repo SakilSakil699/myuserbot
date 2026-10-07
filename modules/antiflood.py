@@ -1,5 +1,5 @@
 from pyrogram import filters
-from config import PREFIX
+from config import BOT_PREFIX as PREFIX
 import time, asyncio
 
 TRACK = {}  # {chat_id: {user_id: [timestamps]}}
