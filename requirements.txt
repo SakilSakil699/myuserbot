@@ -1,0 +1,16 @@
+pyrogram==2.0.106
+tgcrypto==1.2.5
+python-dotenv
+aiohttp
+pillow
+requests
+yt-dlp
+openai
+psutil
+qrcode[pil]
+gTTS
+cryptography
+beautifulsoup4
+lxml
+instaloader
+pytz
