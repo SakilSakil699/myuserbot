@@ -1,6 +1,6 @@
 from pyrogram import filters
 from pyrogram.enums import ChatMembersFilter
-from config import PREFIX
+from config import BOT_PREFIX as PREFIX
 import asyncio
 
 def cmd(name):
