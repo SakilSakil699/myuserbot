@@ -1,5 +1,5 @@
 from pyrogram import filters
-from config import PREFIX
+from config import BOT_PREFIX as PREFIX
 import os, aiohttp
 
 OPENAI_KEY = os.getenv("OPENAI_API_KEY", "")
