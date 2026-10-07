@@ -1,5 +1,5 @@
 """
-📊 Dashboard — System stats (Termux-compatible)
+📊 Dashboard — System stats (Termux-safe)
 """
 
 from helpers import cmd
@@ -10,43 +10,83 @@ import os
 START_TIME = time.time()
 
 
+# ═══════════════════════════════════════════════════
+#  SAFE HELPERS (Termux-compatible)
+# ═══════════════════════════════════════════════════
+
 def safe_cpu():
-    """Get CPU % safely — returns N/A if Termux blocks /proc/stat."""
+    """CPU % — /proc/stat may be blocked on Termux."""
     try:
         import psutil
         return f"{psutil.cpu_percent(interval=0.1)}%"
-    except (PermissionError, FileNotFoundError, Exception):
-        return "N/A (Termux)"
+    except Exception:
+        return "N/A"
 
 
 def safe_ram():
-    """Get RAM info safely."""
+    """RAM usage info."""
     try:
         import psutil
         ram = psutil.virtual_memory()
-        return f"{ram.percent}% ({ram.used // 1024**2}MB / {ram.total // 1024**2}MB)"
+        used_mb = ram.used // 1024**2
+        total_mb = ram.total // 1024**2
+        return f"{ram.percent}% ({used_mb}/{total_mb} MB)"
     except Exception:
         return "N/A"
 
 
 def safe_disk():
-    """Get disk info safely."""
+    """Disk usage info."""
     try:
         import psutil
         disk = psutil.disk_usage("/")
-        return f"{disk.percent}% ({disk.used // 1024**3}GB / {disk.total // 1024**3}GB)"
+        used_gb = disk.used // 1024**3
+        total_gb = disk.total // 1024**3
+        return f"{disk.percent}% ({used_gb}/{total_gb} GB)"
     except Exception:
         return "N/A"
 
+
+def safe_battery():
+    """Battery status (Termux: requires termux-api)."""
+    try:
+        import psutil
+        b = psutil.sensors_battery()
+        if b:
+            return f"{int(b.percent)}% {'⚡' if b.power_plugged else '🔋'}"
+        return "N/A"
+    except Exception:
+        return "N/A"
+
+
+def count_modules():
+    """Count loaded modules."""
+    try:
+        return len([
+            f for f in os.listdir("modules")
+            if f.endswith(".py") and not f.startswith("_")
+        ])
+    except Exception:
+        return "?"
+
+
+def fmt_uptime(seconds):
+    """Format uptime as Xh Ym Zs."""
+    h, r = divmod(int(seconds), 3600)
+    m, s = divmod(r, 60)
+    return f"{h}h {m}m {s}s"
+
+
+# ═══════════════════════════════════════════════════
+#  HANDLERS
+# ═══════════════════════════════════════════════════
 
 def register(app):
 
     @app.on_message(cmd("stats"))
     async def stats(client, message):
         try:
-            uptime = int(time.time() - START_TIME)
-            h, r = divmod(uptime, 3600)
-            m, s = divmod(r, 60)
+            uptime = fmt_uptime(time.time() - START_TIME)
 
             try:
                 me = await client.get_me()
@@ -54,23 +94,18 @@ def register(app):
             except Exception:
                 uname = "N/A"
 
-            # Count modules safely
-            try:
-                mod_count = len([f for f in os.listdir("modules") if f.endswith(".py") and not f.startswith("_")])
-            except Exception:
-                mod_count = "?"
-
             text = (
                 f"📊 <b>Userbot Dashboard</b>\n\n"
                 f"👤 <b>Account:</b> {uname}\n"
-                f"⏱ <b>Uptime:</b> <code>{h}h {m}m {s}s</code>\n\n"
+                f"⏱ <b>Uptime:</b> <code>{uptime}</code>\n\n"
                 f"💻 <b>System</b>\n"
-                f"OS: <code>{platform.system()}</code>\n"
-                f"Python: <code>{platform.python_version()}</code>\n"
-                f"CPU: <code>{safe_cpu()}</code>\n"
-                f"RAM: <code>{safe_ram()}</code>\n"
-                f"Disk: <code>{safe_disk()}</code>\n\n"
-                f"📦 <b>Modules:</b> <code>{mod_count}</code>"
+                f"<b>OS:</b> <code>{platform.system()} {platform.release()}</code>\n"
+                f"<b>Python:</b> <code>{platform.python_version()}</code>\n"
+                f"<b>CPU:</b> <code>{safe_cpu()}</code>\n"
+                f"<b>RAM:</b> <code>{safe_ram()}</code>\n"
+                f"<b>Disk:</b> <code>{safe_disk()}</code>\n"
+                f"<b>Battery:</b> <code>{safe_battery()}</code>\n\n"
+                f"📦 <b>Modules:</b> <code>{count_modules()}</code>"
             )
 
             await message.edit(text)
@@ -81,17 +116,20 @@ def register(app):
 
     @app.on_message(cmd("sysinfo"))
     async def sysinfo(client, message):
-        """Simpler sysinfo — no psutil crash."""
-        uptime = int(time.time() - START_TIME)
-        h, r = divmod(uptime, 3600)
-        m, s = divmod(r, 60)
+        try:
+            uptime = fmt_uptime(time.time() - START_TIME)
 
-        text = (
-            f"💻 <b>System Info</b>\n"
-            f"OS: <code>{platform.system()} {platform.release()}</code>\n"
-            f"Python: <code>{platform.python_version()}</code>\n"
-            f"CPU: <code>{safe_cpu()}</code>\n"
-            f"RAM: <code>{safe_ram()}</code>\n"
-            f"Uptime: <code>{h}h {m}m {s}s</code>"
-        )
-        await message.edit(text)
+            text = (
+                f"💻 <b>System Info</b>\n\n"
+                f"<b>OS:</b> <code>{platform.system()} {platform.release()}</code>\n"
+                f"<b>Python:</b> <code>{platform.python_version()}</code>\n"
+                f"<b>CPU:</b> <code>{safe_cpu()}</code>\n"
+                f"<b>RAM:</b> <code>{safe_ram()}</code>\n"
+                f"<b>Disk:</b> <code>{safe_disk()}</code>\n"
+                f"<b>Uptime:</b> <code>{uptime}</code>"
+            )
+
+            await message.edit(text)
+
+        except Exception as e:
+            await message.edit(f"❌ <b>Error:</b>\n<code>{e}</code>")
