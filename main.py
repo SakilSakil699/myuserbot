@@ -1,25 +1,47 @@
 """
 🚀 Ultimate Advanced Telegram Userbot
-Python 3.14 compatible
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Python 3.14 compatible • Termux ready
 """
 
+# ═══════════════════════════════════════════════════
+#  Python 3.14 Fix for Pyrogram
+# ═══════════════════════════════════════════════════
 import asyncio
 
-# ═══ Python 3.14 Fix for Pyrogram ═══
 try:
     asyncio.get_event_loop()
 except RuntimeError:
     asyncio.set_event_loop(asyncio.new_event_loop())
-# ═══════════════════════════════════
 
+# ═══════════════════════════════════════════════════
+#  Quiet Pyrogram internal spam
+# ═══════════════════════════════════════════════════
 import logging
 
-# Pyrogram ki internal warnings chhupao
 logging.getLogger("pyrogram").setLevel(logging.CRITICAL)
 logging.getLogger("pyrogram.session").setLevel(logging.CRITICAL)
 logging.getLogger("pyrogram.connection").setLevel(logging.CRITICAL)
 logging.getLogger("pyrogram.dispatcher").setLevel(logging.CRITICAL)
+logging.getLogger("pyrogram.methods").setLevel(logging.CRITICAL)
 
+# ═══════════════════════════════════════════════════
+#  Suppress "Peer id invalid" asyncio errors
+# ═══════════════════════════════════════════════════
+def _asyncio_exception_handler(loop, context):
+    """Silently ignore Peer id invalid errors."""
+    exc = context.get("exception")
+    msg = str(exc) if exc else context.get("message", "")
+
+    if "Peer id invalid" in msg or "ID not found" in msg:
+        return  # Ignore silently
+
+    # Show other errors normally
+    loop.default_exception_handler(context)
+
+# ═══════════════════════════════════════════════════
+#  Standard imports
+# ═══════════════════════════════════════════════════
 import os
 import sys
 import signal
@@ -32,9 +54,12 @@ from pyrogram.errors import (
     AuthKeyUnregistered,
     UserDeactivated,
     SessionRevoked,
+    FloodWait,
 )
 
-# ═══ Load Config ═══
+# ═══════════════════════════════════════════════════
+#  Load config
+# ═══════════════════════════════════════════════════
 try:
     from config import (
         API_ID,
@@ -51,25 +76,31 @@ except ImportError as e:
     print(f"❌ config.py load failed: {e}")
     sys.exit(1)
 
-# ═══ Global State ═══
+
+# ═══════════════════════════════════════════════════
+#  Global state
+# ═══════════════════════════════════════════════════
 START_TIME = time.time()
-app = None
-_shutdown_event = None
+app: Client = None
+_shutdown_event: asyncio.Event = None
 
 
-def log(msg):
-    """Simple logger."""
+def log(msg: str):
+    """Timestamped logger."""
     t = time.strftime("%H:%M:%S")
-    print(f"{t} | {msg}")
+    print(f"{t} | {msg}", flush=True)
 
 
-def get_session_string():
-    """Check if session is encrypted or plain."""
+# ═══════════════════════════════════════════════════
+#  Session decryption
+# ═══════════════════════════════════════════════════
+def get_session_string() -> str:
+    """Auto-detect encrypted session and decrypt."""
     if not SESSION_STRING:
         print("❌ SESSION_STRING missing in .env")
         sys.exit(1)
 
-    # Encrypted (Fernet) tokens start with 'gAAAAA'
+    # Fernet tokens start with 'gAAAAA'
     if SESSION_STRING.startswith("gAAAAA"):
         try:
             from core.session_vault import SessionVault
@@ -84,7 +115,10 @@ def get_session_string():
     return SESSION_STRING
 
 
-def create_client():
+# ═══════════════════════════════════════════════════
+#  Client factory
+# ═══════════════════════════════════════════════════
+def create_client() -> Client:
     """Build Pyrogram client."""
     kwargs = {
         "name": "userbot",
@@ -96,7 +130,6 @@ def create_client():
         "sleep_threshold": 60,
     }
 
-    # Add proxy if configured
     if PROXY and PROXY.get("hostname"):
         kwargs["proxy"] = PROXY
         log(f"🌐 Proxy: {PROXY['hostname']}:{PROXY['port']}")
@@ -106,16 +139,22 @@ def create_client():
     return Client(**kwargs)
 
 
+# ═══════════════════════════════════════════════════
+#  Banner
+# ═══════════════════════════════════════════════════
 def print_banner():
     print(f"""
 ╔══════════════════════════════════════════════╗
-║   🔥  {BOT_NAME.upper():<35} 🔥
+║   🔥  {BOT_NAME.upper():<34} 🔥
 ║   Prefix: {PREFIX:<34} ║
 ║   Owner:  {str(OWNER_ID):<34} ║
 ╚══════════════════════════════════════════════╝
 """)
 
 
+# ═══════════════════════════════════════════════════
+#  Plugin loader (with fallback)
+# ═══════════════════════════════════════════════════
 def load_plugins():
     """Load all modules from modules/ folder."""
     try:
@@ -123,10 +162,14 @@ def load_plugins():
         pm = PluginManager(app, modules_dir="modules")
         pm.load_all()
         log(f"✅ Plugins: {len(pm.loaded)} loaded, {len(pm.failed)} failed")
+        if pm.failed:
+            for name, err in pm.failed.items():
+                log(f"   ❌ {name}: {err}")
     except ImportError:
-        # Fallback: manual load if core/ missing
-        log("⚠️ core/ missing — using simple loader")
+        # Fallback: simple loader
+        log("⚠️  core/ missing — using simple loader")
         import importlib
+        loaded = failed = 0
         for f in Path("modules").glob("*.py"):
             if f.name.startswith("_"):
                 continue
@@ -134,13 +177,36 @@ def load_plugins():
                 m = importlib.import_module(f"modules.{f.stem}")
                 if hasattr(m, "register"):
                     m.register(app)
+                    loaded += 1
                     log(f"✅ {f.stem}")
             except Exception as e:
+                failed += 1
                 log(f"❌ {f.stem}: {e}")
+        log(f"✅ Plugins: {loaded} loaded, {failed} failed")
 
 
+# ═══════════════════════════════════════════════════
+#  Warm up peer cache
+# ═══════════════════════════════════════════════════
+async def warmup_peers():
+    """Cache top 100 dialogs — kills 'Peer id invalid' errors."""
+    log("🔥 Warming up peer cache...")
+    try:
+        count = 0
+        async for _ in app.get_dialogs():
+            count += 1
+            if count >= 100:
+                break
+        log(f"✅ Cached {count} dialogs")
+    except Exception as e:
+        log(f"⚠️  Warm-up skipped: {e}")
+
+
+# ═══════════════════════════════════════════════════
+#  Startup
+# ═══════════════════════════════════════════════════
 async def startup():
-    """Start client, load plugins."""
+    """Start client, verify session, load plugins."""
     print_banner()
     log("🚀 Starting userbot...")
 
@@ -168,6 +234,9 @@ async def startup():
     if me.id != OWNER_ID:
         log(f"⚠️  OWNER_ID mismatch: env={OWNER_ID} actual={me.id}")
 
+    # Warm peer cache
+    await warmup_peers()
+
     # Dashboard (optional)
     if DASHBOARD_ENABLED:
         try:
@@ -183,16 +252,21 @@ async def startup():
 
     # Notify owner
     try:
+        uptime = int(time.time() - START_TIME)
         await app.send_message(
             OWNER_ID,
             f"🚀 <b>{BOT_NAME} online!</b>\n\n"
             f"👤 {me.mention}\n"
-            f"🆔 <code>{me.id}</code>"
+            f"🆔 <code>{me.id}</code>",
         )
+        log("📨 Owner notified")
     except Exception as e:
         log(f"⚠️  Owner notify failed: {e}")
 
 
+# ═══════════════════════════════════════════════════
+#  Shutdown
+# ═══════════════════════════════════════════════════
 async def shutdown(sig=None):
     """Graceful shutdown."""
     global _shutdown_event
@@ -216,7 +290,7 @@ async def shutdown(sig=None):
 
 def signal_handler(sig, frame):
     """Sync signal → async shutdown."""
-    log(f"📡 Signal: {sig}")
+    log(f"📡 Signal received: {sig}")
     if _shutdown_event is not None:
         try:
             loop = asyncio.get_event_loop()
@@ -225,12 +299,22 @@ def signal_handler(sig, frame):
             pass
 
 
+# ═══════════════════════════════════════════════════
+#  Main
+# ═══════════════════════════════════════════════════
 async def main():
     global app, _shutdown_event
 
     _shutdown_event = asyncio.Event()
 
-    # Signal handlers
+    # Set asyncio exception handler (suppresses Peer id errors)
+    try:
+        loop = asyncio.get_event_loop()
+        loop.set_exception_handler(_asyncio_exception_handler)
+    except Exception:
+        pass
+
+    # Register signal handlers
     try:
         signal.signal(signal.SIGINT, signal_handler)
         signal.signal(signal.SIGTERM, signal_handler)
@@ -243,24 +327,27 @@ async def main():
     # Startup
     await startup()
 
-    # Keep running
+    # Keep running until shutdown
     try:
         await _shutdown_event.wait()
     except asyncio.CancelledError:
         await shutdown()
 
 
+# ═══════════════════════════════════════════════════
+#  Crash recovery wrapper
+# ═══════════════════════════════════════════════════
 def run_with_recovery():
-    """Auto-restart on crash (max 5 times)."""
+    """Auto-restart on crash (max 5 retries)."""
     max_retries = 5
     delay = 10
 
     for attempt in range(1, max_retries + 1):
         try:
             asyncio.run(main())
-            break
+            break  # Clean exit
         except KeyboardInterrupt:
-            log("⌨️  Interrupted")
+            log("⌨️  Interrupted by user")
             break
         except Exception as e:
             log(f"💥 Crash ({attempt}/{max_retries}): {e}")
@@ -269,13 +356,18 @@ def run_with_recovery():
                 time.sleep(delay)
                 delay *= 2
             else:
-                print("❌ Max retries. Exiting.")
+                print("❌ Max retries reached. Exiting.")
                 sys.exit(1)
 
 
+# ═══════════════════════════════════════════════════
+#  Entry point
+# ═══════════════════════════════════════════════════
 if __name__ == "__main__":
-    # Ensure folders
     Path("data").mkdir(exist_ok=True)
     Path("logs").mkdir(exist_ok=True)
 
-    run_with_recovery()
+    try:
+        run_with_recovery()
+    except KeyboardInterrupt:
+        log("👋 Interrupted.")
